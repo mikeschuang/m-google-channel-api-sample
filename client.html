@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      onSendClick = function() {
+        var msg = document.getElementById("msg").value;
+        if (!msg) {
+            alert("Say something!")
+            return
+        }
+        sendMessage('/send', "msg=" + msg);
+      }
+
+      sendMessage = function(path, opt_param) {
+        path += '?room=' + '{{ room }}';
+        if (opt_param) {
+          path += '&' + opt_param;
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', path, true);
+        xhr.send();
+      }
+
+      onOpened = function() {
+      }
+
+      onMessage = function(message) {
+        var history = document.getElementById("history");
+        history.innerHTML += "<br>" + message.data
+      }
+
+      openChannel = function() {
+        var token = '{{ token }}';
+        var channel = new goog.appengine.Channel(token);
+        var handler = {
+          'onopen': onOpened,
+          'onmessage': onMessage,
+          'onerror': function() {},
+          'onclose': function() {}
+        };
+        var socket = channel.open(handler);
+        socket.onopen = onOpened;
+        socket.onmessage = onMessage;
+      }
+
+      initialize = function() {
+        openChannel();
+      } 
+
+      setTimeout(initialize, 100);
+    </script>
+
+    <div>
+        <div>I want to say: 
+            <input type="text" id="msg" value="Hi">
+            <input type="submit" onclick="onSendClick()">
+        </div>
+        <br><hr>
+        <p>Chat:</p>
+        <p id="history">
+    </div>
+  </body>
+</html>
